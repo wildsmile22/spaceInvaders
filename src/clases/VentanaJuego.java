@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 
 /**
@@ -19,6 +20,12 @@ public class VentanaJuego extends javax.swing.JFrame {
     //buffer para dibujar
     BufferedImage buffer = null;
 
+    //declaro un objeto de tipo nave
+    Nave miNave = new Nave();
+    //declaro dos variables booleanas que controlen el movimiento de la nave
+    boolean pulsadaDerecha = false;
+    boolean pulsadaIzquierda = false;
+    
     Timer temporizador = new Timer(10, new ActionListener() {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -33,7 +40,7 @@ public class VentanaJuego extends javax.swing.JFrame {
     public VentanaJuego() {
         initComponents();
         //cambiamos las dimensiones de la ventana
-        this.setSize(anchoPantalla, altoPantalla);
+        this.setSize(anchoPantalla, altoPantalla+40);
 
         //creamos el buffer a partir del jPanel
         buffer = (BufferedImage) jPanel1.createImage(anchoPantalla, altoPantalla);
@@ -41,17 +48,35 @@ public class VentanaJuego extends javax.swing.JFrame {
 
         //inicio el juego
         temporizador.start();
+        
+        //posiciona la nave abajo del todo
+        miNave.setX(anchoPantalla /2);
+        miNave.setY(altoPantalla - miNave.imagenNave.getHeight(null));
+        
     }
 
+
+    
+    
 private void bucleDelJuego() {
+    
         //primero apunto al buffer
         Graphics2D g2 = (Graphics2D) buffer.getGraphics();
+        
+        
+        
         //pinto un rectángulo negro del tamaño de la ventana
         g2.setColor(Color.BLACK);
         g2.fillRect(0, 0, anchoPantalla, altoPantalla);
         /////////////////////////////////////////////////////
         //////    codigo del juego    ///////////////////////
-
+        if (pulsadaIzquierda){
+            miNave.setX(miNave.getX() - 1);
+        }
+        else if (pulsadaDerecha){
+            miNave.setX(miNave.getX() + 1);
+        }        
+        g2.drawImage(miNave.imagenNave, miNave.getX(), miNave.getY(), null);
 
         /////////////////////////////////////////////////////
         //apunto al jPanel y dibujo el buffer sobre el jPanel
@@ -72,6 +97,14 @@ private void bucleDelJuego() {
         jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                formKeyPressed(evt);
+            }
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                formKeyReleased(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -97,6 +130,24 @@ private void bucleDelJuego() {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
+        if (evt.getKeyCode() == KeyEvent.VK_LEFT)
+        {
+           pulsadaIzquierda = true;
+           pulsadaDerecha = false;
+        }
+        if (evt.getKeyCode() == KeyEvent.VK_RIGHT)
+        {
+           pulsadaIzquierda = false;
+           pulsadaDerecha = true;
+        }
+    }//GEN-LAST:event_formKeyPressed
+
+    private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+           pulsadaIzquierda = false;
+           pulsadaDerecha = false;       
+    }//GEN-LAST:event_formKeyReleased
 
     /**
      * @param args the command line arguments
