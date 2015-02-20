@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  *
@@ -21,10 +22,17 @@ public class VentanaJuego extends javax.swing.JFrame {
     BufferedImage buffer = null;
 
     //declaro un objeto de tipo nave
-    Nave miNave = new Nave();
+    Nave miNave = new Nave(anchoPantalla);
     //declaro dos variables booleanas que controlen el movimiento de la nave
     boolean pulsadaDerecha = false;
     boolean pulsadaIzquierda = false;
+   
+    ArrayList <Disparo> listaDisparos = new ArrayList();
+    Disparo disparoAux ;
+    
+    ArrayList <Marciano> listaMarcianos = new ArrayList();
+    int velocidadMarciano = 1;
+    
     
     Timer temporizador = new Timer(10, new ActionListener() {
         @Override
@@ -53,6 +61,15 @@ public class VentanaJuego extends javax.swing.JFrame {
         miNave.setX(anchoPantalla /2);
         miNave.setY(altoPantalla - miNave.imagenNave.getHeight(null));
         
+        //inicializo el arraylist de los marcianos
+        for(int j=0; j<4; j++){
+            for (int i=0; i< 10; i++){
+                Marciano m = new Marciano();
+                m.setX(i * (m.ancho + 15) );
+                m.setY(m.ancho * j);
+                listaMarcianos.add(m);
+            }
+        }
     }
 
 
@@ -70,6 +87,22 @@ private void bucleDelJuego() {
         g2.fillRect(0, 0, anchoPantalla, altoPantalla);
         /////////////////////////////////////////////////////
         //////    codigo del juego    ///////////////////////
+        
+        for (int i=0; i<listaMarcianos.size(); i++){
+            Marciano m = listaMarcianos.get(i);
+            m.setX(m.getX() + velocidadMarciano);
+            //si choca en la pared derecha
+            if ( (m.getX() + m.ancho) > anchoPantalla ){
+                velocidadMarciano = -velocidadMarciano;
+            }
+            //si choca en la pared derecha
+            if (m.getX() <= 0){
+                velocidadMarciano = -velocidadMarciano;
+            }
+            g2.drawImage(m.imagen1, m.getX(), m.getY(),null);
+        }
+        
+        
         if (pulsadaIzquierda){
             miNave.setX(miNave.getX() - 1);
         }
@@ -78,6 +111,15 @@ private void bucleDelJuego() {
         }        
         g2.drawImage(miNave.imagenNave, miNave.getX(), miNave.getY(), null);
 
+        for (int i=0; i<listaDisparos.size(); i++){
+            disparoAux = listaDisparos.get(i);
+            disparoAux.setY( disparoAux.getY() - 1);
+            if (disparoAux.getY() < 0){
+              listaDisparos.remove(i);
+            }
+            g2.drawImage(disparoAux.imagenDisparo, disparoAux.getX(), disparoAux.getY(), null);
+        }
+        
         /////////////////////////////////////////////////////
         //apunto al jPanel y dibujo el buffer sobre el jPanel
         g2 = (Graphics2D) jPanel1.getGraphics();
@@ -142,11 +184,24 @@ private void bucleDelJuego() {
            pulsadaIzquierda = false;
            pulsadaDerecha = true;
         }
+        // añado un disparo si se ha pulsado la barra espaciadora
+        if (evt.getKeyCode() == KeyEvent.VK_SPACE)
+        {
+           Disparo d = new Disparo();
+           d.setX( miNave.getX()+ miNave.getAnchoNave()/2 - d.imagenDisparo.getWidth(null)/2);
+           d.setY( miNave.getY());
+           
+           //agrego el disparo a la lista de disparos
+           listaDisparos.add(d);
+        }
     }//GEN-LAST:event_formKeyPressed
 
     private void formKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyReleased
+        if (evt.getKeyCode() != KeyEvent.VK_SPACE)
+        {   
            pulsadaIzquierda = false;
-           pulsadaDerecha = false;       
+           pulsadaDerecha = false;
+        }
     }//GEN-LAST:event_formKeyReleased
 
     /**

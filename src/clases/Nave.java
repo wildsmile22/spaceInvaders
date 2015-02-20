@@ -2,8 +2,6 @@ package clases;
 
 import java.awt.Image;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.imageio.ImageIO;
 
 /**
@@ -15,13 +13,16 @@ public class Nave {
         //posición x-y de la nave
     private int x = 0;
     private int y = 0;
+    private int anchoMaximo;
+    private int anchoNave;
     
-    public Nave (){
+    public Nave (int ancho){
+        anchoMaximo = ancho;
         try {
             imagenNave = ImageIO.read((getClass().getResource("/imagenes/nave.png")));
         } catch (IOException ex) {
-           
         }
+        anchoNave = imagenNave.getWidth(null);
     }
 
     public int getX() {
@@ -32,6 +33,9 @@ public class Nave {
         if (x<0) {
             x=0;
         }
+        if (x > anchoMaximo - anchoNave){
+            x = anchoMaximo - anchoNave;
+        }
         this.x = x;
     }
 
@@ -41,5 +45,9 @@ public class Nave {
 
     public void setY(int y) {
         this.y = y;
+    }
+
+    public int getAnchoNave() {
+        return anchoNave;
     }
 }
