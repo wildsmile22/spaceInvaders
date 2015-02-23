@@ -6,12 +6,13 @@ import javax.swing.Timer;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 /**
  *
- * @author jorgecisneros
+ * @author luis feliz
  */
 public class VentanaJuego extends javax.swing.JFrame {
         //alto y ancho de la ventana
@@ -116,14 +117,39 @@ private void pintaDisparos( Graphics2D g2){
             //pinto los disparos
         for (int i=0; i<listaDisparos.size(); i++){
             disparoAux = listaDisparos.get(i);
-            disparoAux.setY( disparoAux.getY() - 1);
+            disparoAux.setY( disparoAux.getY() - 5);
             if (disparoAux.getY() < 0){
               listaDisparos.remove(i);
             }
             g2.drawImage(disparoAux.imagenDisparo, disparoAux.getX(), disparoAux.getY(), null);
         }
 }
-    
+    private void chequeaColision () {
+        // creo un marco para guardar el borde de la imagen del marciano
+        Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
+          // creo un marco para guardar el borde de la imagen del disparo
+        Rectangle2D.Double rectanguloDisparo = new Rectangle2D.Double();
+            // ahora leo la lista de disparos 
+        for (int j=0; j<listaDisparos.size(); j++){
+            Disparo d = listaDisparos.get(j);
+            // asigno al rectñángulo las dimensiones del disparo y su posicion
+        rectanguloDisparo.setFrame(d.getX(), d.getY(), d.imagenDisparo.getWidth(null), d.imagenDisparo.getHeight(null));
+        
+        // leo la lista de marcianos y comparo uno a uno con el disparo
+        for (int i=0; i< listaMarcianos.size(); i++){
+        Marciano m = listaMarcianos.get(i);
+        rectanguloMarciano.setFrame(m.getX(), m.getY(), m.ancho, m.ancho);
+        if (rectanguloDisparo.intersects(rectanguloMarciano)){
+            listaMarcianos.remove(i);
+            
+            listaDisparos.remove(j);
+       }
+                
+        
+            }
+        }
+        
+    }
 private void bucleDelJuego() {
     
         //primero apunto al buffer
@@ -138,7 +164,7 @@ private void bucleDelJuego() {
         pintaMarcianos(g2);
         pintaNave(g2);
         pintaDisparos(g2);
-        
+        chequeaColision();
 
         
         /////////////////////////////////////////////////////
