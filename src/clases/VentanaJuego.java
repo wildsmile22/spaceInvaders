@@ -71,38 +71,38 @@ public class VentanaJuego extends javax.swing.JFrame {
             }
         }
     }
+private void pintaMarcianos(Graphics2D miGrafico ){
 
-
-    
-    
-private void bucleDelJuego() {
-    
-        //primero apunto al buffer
-        Graphics2D g2 = (Graphics2D) buffer.getGraphics();
-        
-        
-        
-        //pinto un rectángulo negro del tamaño de la ventana
-        g2.setColor(Color.BLACK);
-        g2.fillRect(0, 0, anchoPantalla, altoPantalla);
-        /////////////////////////////////////////////////////
-        //////    codigo del juego    ///////////////////////
+        //recorre la lista de marcianos
+        //los va pintando en su coordenada correspondiente
+        //uso una variable booleana para indicar si ha tocado
+        //en la pared derecha o en la izquierda
+        boolean cambia = false;
         
         for (int i=0; i<listaMarcianos.size(); i++){
             Marciano m = listaMarcianos.get(i);
             m.setX(m.getX() + velocidadMarciano);
             //si choca en la pared derecha
             if ( (m.getX() + m.ancho) > anchoPantalla ){
-                velocidadMarciano = -velocidadMarciano;
+                cambia = true;
             }
-            //si choca en la pared derecha
+            //si choca en la pared izquierda
             if (m.getX() <= 0){
-                velocidadMarciano = -velocidadMarciano;
+                cambia = true;
             }
-            g2.drawImage(m.imagen1, m.getX(), m.getY(),null);
+            miGrafico.drawImage(m.imagen1, m.getX(), m.getY(),null);
         }
-        
-        
+        //si ha tocado, cambio la velocidad
+        if (cambia){
+            velocidadMarciano = -velocidadMarciano;
+            for (int i=0; i<listaMarcianos.size(); i++){
+                Marciano m = listaMarcianos.get(i);
+                m.setY(m.getY() + m.ancho/2);
+            }
+        }
+}
+
+private void pintaNave( Graphics2D g2){
         if (pulsadaIzquierda){
             miNave.setX(miNave.getX() - 1);
         }
@@ -110,7 +110,10 @@ private void bucleDelJuego() {
             miNave.setX(miNave.getX() + 1);
         }        
         g2.drawImage(miNave.imagenNave, miNave.getX(), miNave.getY(), null);
+}
 
+private void pintaDisparos( Graphics2D g2){
+            //pinto los disparos
         for (int i=0; i<listaDisparos.size(); i++){
             disparoAux = listaDisparos.get(i);
             disparoAux.setY( disparoAux.getY() - 1);
@@ -119,6 +122,24 @@ private void bucleDelJuego() {
             }
             g2.drawImage(disparoAux.imagenDisparo, disparoAux.getX(), disparoAux.getY(), null);
         }
+}
+    
+private void bucleDelJuego() {
+    
+        //primero apunto al buffer
+        Graphics2D g2 = (Graphics2D) buffer.getGraphics();
+ 
+        //pinto un rectángulo negro del tamaño de la ventana
+        g2.setColor(Color.BLACK);
+        g2.fillRect(0, 0, anchoPantalla, altoPantalla);
+        /////////////////////////////////////////////////////
+        //////    codigo del juego    ///////////////////////
+        
+        pintaMarcianos(g2);
+        pintaNave(g2);
+        pintaDisparos(g2);
+        
+
         
         /////////////////////////////////////////////////////
         //apunto al jPanel y dibujo el buffer sobre el jPanel
@@ -185,7 +206,7 @@ private void bucleDelJuego() {
            pulsadaDerecha = true;
         }
         // añado un disparo si se ha pulsado la barra espaciadora
-        if (evt.getKeyCode() == KeyEvent.VK_SPACE)
+        if( (evt.getKeyCode() == KeyEvent.VK_SPACE) && (listaDisparos.size() < 6))
         {
            Disparo d = new Disparo();
            d.setX( miNave.getX()+ miNave.getAnchoNave()/2 - d.imagenDisparo.getWidth(null)/2);
