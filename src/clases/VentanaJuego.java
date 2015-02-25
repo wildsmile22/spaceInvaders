@@ -34,6 +34,10 @@ public class VentanaJuego extends javax.swing.JFrame {
     ArrayList <Marciano> listaMarcianos = new ArrayList();
     int velocidadMarciano = 1;
     
+    ArrayList <Explosion> listaExplosiones = new ArrayList();
+    Explosion Explosiones = new Explosion ();
+    
+    int contadorTiempo = 0;
     
     Timer temporizador = new Timer(10, new ActionListener() {
         @Override
@@ -91,7 +95,12 @@ private void pintaMarcianos(Graphics2D miGrafico ){
             if (m.getX() <= 0){
                 cambia = true;
             }
-            miGrafico.drawImage(m.imagen1, m.getX(), m.getY(),null);
+            if(contadorTiempo <75){
+                miGrafico.drawImage(m.imagen1, m.getX(), m.getY(), null);  
+            }
+            else{
+                miGrafico.drawImage(m.imagen2, m.getX(), m.getY(), null);
+            }
         }
         //si ha tocado, cambio la velocidad
         if (cambia){
@@ -124,6 +133,27 @@ private void pintaDisparos( Graphics2D g2){
             g2.drawImage(disparoAux.imagenDisparo, disparoAux.getX(), disparoAux.getY(), null);
         }
 }
+private void pintaExplosiones( Graphics2D g2){
+            //pinto las explosiones
+        for (int i=0; i<listaExplosiones.size(); i++){
+            Explosion e = listaExplosiones.get(i);
+           e.setTiempoDevida(e.getTiempoDevida() -1);
+           if(e.getTiempoDevida()<=25){
+            g2.drawImage(e.imagenExplosion, e.getX(), e.getY(), null);
+           }
+           else{
+               g2.drawImage(e.imagenExplosion2, e.getX(), e.getY(), null);
+           }
+            
+            
+            
+            // si el tiempo de vida de la explosion es menor que 0 la elimino
+            if (e.getTiempoDevida()<=0){
+                listaExplosiones.remove(i);
+            }
+            
+        }
+}
     private void chequeaColision () {
         // creo un marco para guardar el borde de la imagen del marciano
         Rectangle2D.Double rectanguloMarciano = new Rectangle2D.Double();
@@ -132,23 +162,40 @@ private void pintaDisparos( Graphics2D g2){
             // ahora leo la lista de disparos 
         for (int j=0; j<listaDisparos.size(); j++){
             Disparo d = listaDisparos.get(j);
-            // asigno al rectñángulo las dimensiones del disparo y su posicion
+            // asigno al rectángulo las dimensiones del disparo y su posicion
         rectanguloDisparo.setFrame(d.getX(), d.getY(), d.imagenDisparo.getWidth(null), d.imagenDisparo.getHeight(null));
-        
+        boolean disparoABorrar = false;
         // leo la lista de marcianos y comparo uno a uno con el disparo
         for (int i=0; i< listaMarcianos.size(); i++){
         Marciano m = listaMarcianos.get(i);
         rectanguloMarciano.setFrame(m.getX(), m.getY(), m.ancho, m.ancho);
         if (rectanguloDisparo.intersects(rectanguloMarciano)){
+            Explosion e = new Explosion();
+           e.setX(m.getX());
+           e.setY(m.getY());
+            listaExplosiones.add(e);
             listaMarcianos.remove(i);
-            
-            listaDisparos.remove(j);
-       }
+            // no borro aqui el disparo para evitar que se cuelgue     
+            //listaDisparos.remove(j);
+           
+            disparoABorrar = true;
+        }
                 
         
             }
+       if (disparoABorrar){
+       
+            listaDisparos.remove(j);
+       
+       }
         }
         
+    }
+    private void actualizaContadorTiempo (){
+        contadorTiempo ++;
+        if (contadorTiempo > 150){
+            contadorTiempo = 0;
+        }
     }
 private void bucleDelJuego() {
     
@@ -164,8 +211,9 @@ private void bucleDelJuego() {
         pintaMarcianos(g2);
         pintaNave(g2);
         pintaDisparos(g2);
+        pintaExplosiones(g2);
         chequeaColision();
-
+        actualizaContadorTiempo();
         
         /////////////////////////////////////////////////////
         //apunto al jPanel y dibujo el buffer sobre el jPanel
